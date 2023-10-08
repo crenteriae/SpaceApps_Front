@@ -10,6 +10,7 @@ const config: Config = {
     extend: {
       colors: {
         'head' : '#EAF0CE',
+        'reseda-green' : '#71816D',
       },
       fontFamily: {
         serif: ['var(--font-librebaskerville)'],
