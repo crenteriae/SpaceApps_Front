@@ -70,7 +70,7 @@ export default function Earth() {
                 const data = await response.json();
     
                 const randomData = [];
-                for (let i = 0; i < 10; i++) {
+                for (let i = 0; i < 100; i++) {
                     const randomIndex = Math.floor(Math.random() * data.length);
                     randomData.push(data[randomIndex]);
                 }
