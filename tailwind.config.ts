@@ -1,6 +1,6 @@
 import type { Config } from 'tailwindcss'
 const {nextui} = require("@nextui-org/react");
-
+import { Libre_Baskerville, Open_Sans } from 'next/font/google';
 
 const config: Config = {
   content: [
