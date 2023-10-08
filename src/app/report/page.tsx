@@ -1,8 +1,8 @@
 "use client"
 import { useEffect, useState } from "react"
 import { Button, Card } from "@nextui-org/react"
-import { useDropzone } from 'react-dropzone';
-
+import { useDropzone } from 'react-dropzone'
+import axios from 'axios'
 
 export default function Page(){
 
@@ -34,14 +34,34 @@ export default function Page(){
         }
     }, []);
 
-    const handleButtonClick = () => {
+    const handleButtonClick = async () => {
         setLoading(true)
         if(geolocationError){
             alert("Geolocation is not available. Please enable location services.")
+            setLoading(false)
             return;
         }
         else{
-
+            try{
+                const formData = new FormData();
+                formData.append('latitude', String(lat))
+                formData.append('longitude', String(long))
+                if(file){
+                    formData.append('image', file)
+                }
+                const response = await axios.post("https://flamefox.azurewebsites.net", formData, {
+                    headers: {
+                        "Content-Type": "multipart/form-data"
+                    }
+                })
+                setFile(null)
+                setFileText('Drag \'n\' drop some files here, or click to select files');
+                setLoading(false)
+            }
+            catch(error){
+                console.error("Error uploading data: ", error)
+                setLoading(false)
+            }
         }
         //setLoading(false ) when correct handle
     }
