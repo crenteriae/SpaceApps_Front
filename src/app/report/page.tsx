@@ -46,25 +46,26 @@
         
 
         return(
-            <div className="p-5 w-full flex flex-col justify-center items-center font-sans text-sm">
-                <div className="w-1/3">
-                    <p>Latitude: {lat}</p>
-                    <p>Longitude: {long}</p>
-                    {geolocationError && <p>{geolocationError}</p>}
-                </div>
-                <div className="text-center">
-                    <input
-                        type="file"
-                        accept="image/*"
-                        onChange={handlePictureUpload}
-                        className="mt-4"
-                    />
-                    <button
-                        onClick={handleButtonClick}
-                        className="bg-head text-black font-sans px-4 py-2 rounded mt-4"
-                    >
-                        Upload Report
-                    </button>
+            <div className="flex justify-center">
+                <div className="p-5 w-2/5 flex flex-col justify-center items-center font-sans text-sm bg-slate-100 m-5 rounded-lg self-center">
+                    <div className="w-full">
+                        <p>Latitude: {lat}</p>
+                        <p>Longitude: {long}</p>
+                        {geolocationError && <p>{geolocationError}</p>}
+                    </div>
+                    <div className="text-center w-full flex flex-row justify-evenly">
+                        <input
+                            type="file"
+                            accept="image/*"
+                            onChange={handlePictureUpload}
+                            className="mt-4"
+                        />
+                        <button
+                            onClick={handleButtonClick}
+                            className="bg-head text-black font-sans px-4 py-2 rounded mt-4 hover:bg-reseda-green hover:text-white">
+                            Upload Report
+                        </button>
+                    </div>
                 </div>
             </div>
         )
