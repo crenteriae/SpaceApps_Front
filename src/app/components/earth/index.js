@@ -1,7 +1,10 @@
 "use client";
-import { useState, useEffect, useRef , useMemo} from 'react';
-import { Canvas, useLoader, useFrame, useThree } from '@react-three/fiber';
+
+import { useState, useEffect, useRef, useMemo, Suspense } from "react";
+import { Spinner } from "@nextui-org/react";
+import { Canvas, useLoader, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Html } from '@react-three/drei';
+
 import * as THREE from "three";
 import {
   TextureLoader,
@@ -129,6 +132,7 @@ function Stars({ count = 5000 }) {
 function RotatingEarth({ fireData }) {
   const meshRef = useRef();
   const texture = useLoader(TextureLoader, "/assets/EarthTexture.jpg");
+
   const [hoverChange, setHoverChange] = useState(false);
   
   useFrame(() => {
@@ -139,7 +143,7 @@ function RotatingEarth({ fireData }) {
 
   return (
     <mesh ref={meshRef} scale={2}>
-      <Stars></Stars>
+      <Stars />
       <sphereGeometry />
       <meshStandardMaterial map={texture} />
       {fireData.map((fire, index) => (
@@ -198,20 +202,29 @@ export default function Earth() {
                     ))}
                 </ul>
             </div>
-
-            <Canvas raycaster={{threshold: 0.5}}>
+            <Canvas raycaster={{ threshold: 0.5 }}>
+              <Suspense
+                fallback={
+                  <Html>
+                    <Spinner />
+                  </Html>
+                }
+              >
                 <ambientLight intensity={0.5} />
                 <pointLight intensity={80} position={[5, 0, 0]} />
                 <RotatingEarth fireData={fireData} />
-                <OrbitControls 
-                    enableZoom={true} 
-                    enableRotate={true} 
-                    autoRotate={true}
-                    autoRotateSpeed={0.5}
-                    minDistance={2.5}
-                    maxDistance={8}
+                <OrbitControls
+                  enableZoom={true}
+                  enablePan={false}
+                  enableRotate={true}
+                  autoRotate={true}
+                  autoRotateSpeed={0.5}
+                  minDistance={2.5}
+                  maxDistance={8}
                 />
+              </Suspense>
             </Canvas>
         </div>
     );
+  );
 }

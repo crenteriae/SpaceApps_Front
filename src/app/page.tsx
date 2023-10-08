@@ -1,6 +1,9 @@
+"use client"
 import styles from './page.module.scss';
 import Earth from './components/earth/';
 import StarfieldAnimation from 'react-starfield-animation';
+import { Spinner } from '@nextui-org/react';
+import { Suspense } from 'react';
 
 export default function Home() {
     return (
