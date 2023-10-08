@@ -11,7 +11,7 @@ export default function Page(){
     const [geolocationError, setGeolocationError] = useState<string | null>(null)
     const [loading, setLoading] = useState(false);
 
-    const [file, setFile] = useState(null);
+    const [file, setFile] = useState<File | null>(null);
     const [fileText, setFileText] = useState('Drag \'n\' drop some files here, or click to select files');
 
 
@@ -46,7 +46,7 @@ export default function Page(){
         //setLoading(false ) when correct handle
     }
     
-    const handleFileChange = (acceptedFiles) => {
+    const handleFileChange = (acceptedFiles: File[]) => {
     if (acceptedFiles && acceptedFiles.length > 0) {
       const selectedFile = acceptedFiles[0];
       const acceptedFileTypes = ['image/jpeg', 'image/png'];
@@ -63,13 +63,13 @@ export default function Page(){
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => handleFileChange(acceptedFiles),
-    accept: 'image/jpeg, image/png',
+    accept: ['image/jpeg', 'image/png'],
   });
 
     return(
         <div className="flex justify-center">
             <div className="p-5 flex flex-col justify-center items-center font-sans text-sm m-5 rounded-lg self-center w-full">
-                <Card className="p-8 bg-slate-100 shadow-lg m-8 w-1/5">
+                <Card className="p-8 bg-slate-100 shadow-lg m-8 min-w-fit w-1/5">
                     <div className="flex justify-between">
                         <h1 className="font-bold">Latitude:</h1>
                         <p>{lat}</p>
