@@ -80,7 +80,7 @@ export default function page() {
                         <h2 className='font-bold ml-1 text-lg'>Barbecues / Campfires</h2>
                     </div>
                     <div className='flex flex-row justify-between'>
-                        <div className='my-auto'>
+                        <div>
                             <li className='ml-1 font-sans'>Clear a 10-foot area around a barbecue.</li>
                             <li className='ml-1 font-sans'>When disposing of briquettes and ash outside, drown the with lots of water and make sure they are out.</li>
                             <li className='ml-1 font-sans'>When building a campfire, make sure it is not dry or windy or where is not allowed to.</li>
