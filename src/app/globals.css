@@ -1,7 +1,22 @@
+@import url('https://fonts.googleapis.com/css2?family=Gabarito:wght@400;600&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+.header{
+  display: flex;
+  width: 100%;
+  align-content: space-between;
+  background-color: #71816D;
+}
+#title{
+  display: flex;
+  font-family: 'Gabarito';
+  font-weight: 800;
+}
+#nav{
+  font-family: 'Gabarito';
+}
 /* :root {
   --foreground-rgb: 0, 0, 0;
   --background-start-rgb: 214, 219, 220;

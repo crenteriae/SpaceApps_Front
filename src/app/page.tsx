@@ -1,7 +1,7 @@
-import Image from 'next/image'
+import Main from "./pages/main"
 
 export default function Home() {
   return (
-    <h1>Hello world</h1>
+    <Main/>
   )
 }
