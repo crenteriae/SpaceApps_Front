@@ -25,7 +25,7 @@ export default function RootLayout({
   return (
     <html lang="en">
         <body className={`${libre_baskerville.variable} font-serif ${open_sans.variable} font-sans`}>
-        <NextUIProvider>
+        <NextUIProvider className='h-full'>
           <Header/>
           {children}
         </NextUIProvider>

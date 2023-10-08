@@ -16,7 +16,10 @@
     "next": "13.5.4",
     "react": "^18",
     "react-dom": "^18",
-    "sass": "^1.69.0"
+    "react-dropzone": "^14.2.3",
+    "react-starfield-animation": "^1.0.1",
+    "sass": "^1.69.0",
+    "three": "^0.157.0"
   },
   "devDependencies": {
     "@types/node": "^20",
