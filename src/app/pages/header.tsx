@@ -24,13 +24,16 @@ export default function Header(){
           className="sm:hidden"
         />
         <NavbarBrand>
+            <Link color="foreground" href="/">
+            
            <Image
                 src='/fire.png'
                 width={50}
                 height={50}
                 alt="FlameFox Logo"
             />
-          <p className="font-bold text-inherit">FlameFox</p>
+            <p className="font-bold text-inherit">FlameFox</p>
+          </Link>
         </NavbarBrand>
       </NavbarContent>
 
