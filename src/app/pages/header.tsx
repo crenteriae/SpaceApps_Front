@@ -1,23 +1,103 @@
+'use client'
+import React from "react";
 import Image from "next/image"
-import Navigator from "./navigator"
-import Link from "next/link"
+import { Navbar as NavbarUi,NavbarMenuToggle, NavbarBrand, NavbarContent, NavbarItem, Link, Button, NavbarMenu, NavbarMenuItem} from "@nextui-org/react"
+
+
 
 export default function Header(){
-    return(
-        <div className = 'header p-1 flex justify-between'>
-            <div className="flex space-evenly">
-                <h1 id = 'title' className = 'text-head text-2xl my-auto mr-20 cursor-pointer'>FlameFox</h1>
-                <Navigator text='Home' path='/'/>
-                <Navigator text='Education' path='education'/>
-                <Navigator text='Report' path='report'/>
-                <Navigator text='About' path='about'/>
-            </div>
-            <Image
+    const [isMenuOpen, setIsMenuOpen] = React.useState(false);
+
+    
+  const menuItems = [
+    "Home",
+    "Education",
+    "Report",
+    "About",
+  ];
+
+    return (
+    <NavbarUi onMenuOpenChange={setIsMenuOpen} className="bg-yellow-50">
+      <NavbarContent>
+        <NavbarMenuToggle
+          aria-label={isMenuOpen ? "Close menu" : "Open menu"}
+          className="sm:hidden"
+        />
+        <NavbarBrand>
+            <Link color="foreground" href="/">
+            
+           <Image
                 src='/fire.png'
                 width={50}
                 height={50}
                 alt="FlameFox Logo"
             />
-        </div>
+            <p className="font-bold text-inherit">FlameFox</p>
+          </Link>
+        </NavbarBrand>
+      </NavbarContent>
+
+      <NavbarContent className="hidden sm:flex gap-4" justify="center">
+        <NavbarItem>
+          <Link color="foreground" href="/">
+            Home
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link color="foreground" href="/report">
+            Report
+          </Link>
+        </NavbarItem>
+        <NavbarItem>
+          <Link color="foreground" href="/education">
+            Education
+          </Link>
+        </NavbarItem>
+        <NavbarItem isActive>
+          <Link href="/about" color="foreground" aria-current="page">
+            About
+          </Link>
+        </NavbarItem>
+      </NavbarContent>
+      <NavbarContent justify="end">
+      </NavbarContent>
+      <NavbarMenu>
+        <NavbarMenuItem>
+            <Link
+              color= "foreground"
+              className="w-full"
+              href="/"
+              size="lg"
+            >
+              Home
+            </Link>
+            <Link
+              color= "foreground"
+              className="w-full"
+              href="/report"
+              size="lg"
+            >
+              Report
+            </Link>
+            <Link
+              color= "foreground"
+              className="w-full"
+              href="/"
+              size="lg"
+            >
+              Education
+            </Link>
+            <Link
+              color= "foreground"
+              className="w-full"
+              href="/about"
+              size="lg"
+            >
+              About
+            </Link>
+          </NavbarMenuItem>
+      </NavbarMenu>
+    </NavbarUi>
     )
 }
+

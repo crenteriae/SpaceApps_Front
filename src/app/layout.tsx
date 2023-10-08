@@ -1,14 +1,21 @@
+"use client"
 import './globals.css'
 import type { Metadata } from 'next'
-import { Inter } from 'next/font/google'
 import Header from './pages/header'
+import { Libre_Baskerville, Open_Sans } from 'next/font/google'
+import {NextUIProvider} from "@nextui-org/react";
 
-const inter = Inter({ subsets: ['latin'] })
 
-export const metadata: Metadata = {
-  title: 'FlameFox',
-  description: 'Fire detection',
-}
+const libre_baskerville = Libre_Baskerville({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  variable: '--font-librebaskerville'
+})
+
+const open_sans = Open_Sans({
+  subsets: ['latin'],
+  variable: '--font-opensans'
+})
 
 export default function RootLayout({
   children,
@@ -17,10 +24,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={inter.className}>
-        <Header/>
-        {children}
-      </body>
-    </html>
+        <body className={`${libre_baskerville.variable} font-serif ${open_sans.variable} font-sans`}>
+        <NextUIProvider className='h-full'>
+          <Header/>
+          {children}
+        </NextUIProvider>
+        </body>
+      </html>
   )
 }
