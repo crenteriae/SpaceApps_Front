@@ -6,7 +6,11 @@ export default function Header(){
     return(
         <div className = 'header p-1 flex justify-between'>
             <div className="flex space-evenly">
-                <h1 id = 'title' className = 'text-head text-2xl my-auto mr-20 cursor-pointer'>FlameFox</h1>
+                <Link
+                className="my-auto"
+                href="/">
+                    <h1 id = 'title' className = 'text-head text-2xl my-auto mr-20 cursor-pointer'>FlameFox</h1>
+                </Link>
                 <Navigator text='Home' path='/'/>
                 <Navigator text='Education' path='education'/>
                 <Navigator text='Report' path='report'/>

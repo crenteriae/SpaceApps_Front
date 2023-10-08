@@ -11,6 +11,13 @@ const config: Config = {
       colors: {
         'head' : '#EAF0CE',
       },
+      fontFamily: {
+        serif: ['var(--font-librebaskerville)'],
+        sans: ['var(--font-opensans)'],
+      },
+      aspectRatio: {
+        '4/3': '4 / 3',
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
