@@ -7,7 +7,7 @@ import React, {
   useMemo,
   Suspense,
   useCallback,
-  useLayoutEffect
+  useLayoutEffect,
 } from "react";
 import {
   Spinner,
@@ -31,9 +31,7 @@ import {
   Float32BufferAttribute,
   PointsMaterial,
 } from "three";
-import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-
-
+import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 
 const styles = {
   container: {
@@ -57,22 +55,22 @@ const styles = {
   },
 };
 
-
-
 function Modis() {
-  const CenterDistance = 2.2; 
-  const OrbitSpeed = -0.0001;    
+  const CenterDistance = 2.2;
+  const OrbitSpeed = -0.0001;
   const loader = new GLTFLoader();
   const modisRef = useRef();
   const [model, setModel] = useState(null);
 
   useLayoutEffect(() => {
     loader.load(
-      '/satellite.glb',
+      "/satellite.glb",
       (gltf) => {
-        gltf.scene.traverse(child => {
+        gltf.scene.traverse((child) => {
           if (child.isMesh) {
-            child.material = new THREE.MeshBasicMaterial({ color: child.material.color });
+            child.material = new THREE.MeshBasicMaterial({
+              color: child.material.color,
+            });
             child.castShadow = false;
             child.receiveShadow = false;
           }
@@ -81,7 +79,7 @@ function Modis() {
       },
       undefined,
       (error) => {
-        console.error('Error loading 3d model', error);
+        console.error("Error loading 3d model", error);
       }
     );
   }, []);
@@ -89,30 +87,27 @@ function Modis() {
   useLayoutEffect(() => {
     if (model && modisRef.current) {
       modisRef.current.add(model);
-      model.scale.set(.01, .01, .01);
+      model.scale.set(0.01, 0.01, 0.01);
     }
     return () => {
       if (model && modisRef.current) {
         modisRef.current.remove(model);
       }
-    }
+    };
   }, [model]);
 
   useFrame(() => {
     if (modisRef.current) {
-        const angle = Date.now() * OrbitSpeed;
-        const x = CenterDistance * Math.cos(angle);
-        const z = CenterDistance * Math.sin(angle);
+      const angle = Date.now() * OrbitSpeed;
+      const x = CenterDistance * Math.cos(angle);
+      const z = CenterDistance * Math.sin(angle);
 
-        modisRef.current.position.set(x, 1, z); 
+      modisRef.current.position.set(x, 1, z);
     }
   });
 
   return <group ref={modisRef} />;
 }
-
-
-
 
 function Moon() {
   const position = new Vector3(18, 10, 2);
@@ -177,7 +172,7 @@ function FirePoint({ lat, long, info, setHoverChange, hoverChange }) {
         position={position.toArray()}
         color={new Color("yellow")}
         distance={0.1}
-        intensity={parseFloat(info) / 1000}
+        intensity={0.002}
       />
     </>
   );
@@ -248,7 +243,7 @@ function RotatingEarth({ fireData }) {
           key={index}
           lat={fire.latitude}
           long={fire.longitude}
-          info={fire.bright_ti5.toString()}
+          info={0.02}
           setHoverChange={setHoverChange}
           hoverChange={hoverChange}
         />
