@@ -54,11 +54,11 @@ const styles = {
 };
 
 function Moon() {
-  const position = new Vector3(18,10,2)
-  const moonMesh= useRef();
+  const position = new Vector3(18, 10, 2);
+  const moonMesh = useRef();
   const texture = useLoader(TextureLoader, "/assets/MoonTexture.jpg");
   const degreesY = -90;
-  const radiansY= degreesY*(Math.PI/80);
+  const radiansY = degreesY * (Math.PI / 80);
 
   useEffect(() => {
     if (moonMesh.current) {
@@ -68,8 +68,8 @@ function Moon() {
 
   return (
     <mesh ref={moonMesh} position={position}>
-     <sphereGeometry args={[1.3, 15, 32]}/>
-     <meshStandardMaterial map={texture} />
+      <sphereGeometry args={[1.3, 15, 32]} />
+      <meshStandardMaterial map={texture} />
     </mesh>
   );
 }
@@ -100,11 +100,8 @@ function FirePoint({ lat, long, info, setHoverChange, hoverChange }) {
 
   return (
     <>
-      <mesh
-        position={position.toArray()}
-        onPointerEnter={() => handleHover()}
-      >
-       < sphereGeometry args={[0.005, 15, 32]} />
+      <mesh position={position.toArray()} onPointerEnter={() => handleHover()}>
+        <sphereGeometry args={[0.005, 15, 32]} />
         <meshPhongMaterial
           color={new Color("yellow")}
           emissive={new Color("yellow")}
@@ -236,57 +233,66 @@ export default function Earth() {
     fetchData();
   }, []);
 
-    return (
-        <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-            <div style={{ ...styles.container, position: 'absolute', top: '10px', left: '10px', zIndex: 1 }}>
-                <ul>
-                    {fireData.map((fire, index) => (
-                      <Popover placement="right" key={index}>
-                        <PopoverTrigger>
-                          <Button
-                            className="w-full h-full p-4 my-2 flex flex-col items-start"
-                            onPress={() => handleClickOnFirePoint(fire)}
-                          >
-                            <h1 className="font-bold">Wildfire detected</h1>
-                            <p className="text-left">Latitude: {fire.latitude}</p>
-                            <p>Longitude: {fire.longitude}</p>
-                          </Button>
-                        </PopoverTrigger>
-                        <PopoverContent>
-                          <div className="px-1 py-2">
-                            <div className="text-small font-bold">
-                              The fire has an aproximated rate in km/h of
-                            </div>
-                            <div className="text-tiny">{fireRate}</div>
-                          </div>
-                        </PopoverContent>
-                      </Popover>
-                    ))}
-                </ul>
-            </div>
-            <Canvas raycaster={{ threshold: 0.5 }}>
-            <Moon />
-              <Suspense
-                fallback={
-                  <Html>
-                    <Spinner />
-                  </Html>
-                }
-              >
-                <ambientLight intensity={0.5} />
-                <pointLight intensity={80} position={[5, 0, 0]} />
-                <RotatingEarth fireData={fireData} />
-                <OrbitControls
-                  enableZoom={true}
-                  enablePan={false}
-                  enableRotate={true}
-                  autoRotate={false}
-                  autoRotateSpeed={0.5}
-                  minDistance={2.5}
-                  maxDistance={8}
-                />
-              </Suspense>
-            </Canvas>
-        </div>
-    );
+  return (
+    <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
+      <div
+        className="w-1/4"
+        style={{
+          ...styles.container,
+          position: "absolute",
+          top: "10px",
+          left: "10px",
+          zIndex: 1,
+        }}
+      >
+        <ul>
+          {fireData.map((fire, index) => (
+            <Popover placement="right" key={index}>
+              <PopoverTrigger>
+                <Button
+                  className="w-full h-full p-4 my-2 flex flex-col items-start"
+                  onPress={() => handleClickOnFirePoint(fire)}
+                >
+                  <h1 className="font-bold">Wildfire detected</h1>
+                  <p className="text-left">Latitude: {fire.latitude}</p>
+                  <p>Longitude: {fire.longitude}</p>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent>
+                <div className="px-1 py-2">
+                  <div className="text-small font-bold">
+                    The fire has an aproximated rate in km/h of
+                  </div>
+                  <div className="text-tiny">{fireRate}</div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          ))}
+        </ul>
+      </div>
+      <Canvas raycaster={{ threshold: 0.5 }}>
+        <Moon />
+        <Suspense
+          fallback={
+            <Html>
+              <Spinner />
+            </Html>
+          }
+        >
+          <ambientLight intensity={0.5} />
+          <pointLight intensity={80} position={[5, 0, 0]} />
+          <RotatingEarth fireData={fireData} />
+          <OrbitControls
+            enableZoom={true}
+            enablePan={false}
+            enableRotate={true}
+            autoRotate={false}
+            autoRotateSpeed={0.5}
+            minDistance={2.5}
+            maxDistance={8}
+          />
+        </Suspense>
+      </Canvas>
+    </div>
+  );
 }
