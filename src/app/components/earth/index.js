@@ -7,6 +7,7 @@ import React, {
   useMemo,
   Suspense,
   useCallback,
+  useLayoutEffect
 } from "react";
 import {
   Spinner,
@@ -30,6 +31,9 @@ import {
   Float32BufferAttribute,
   PointsMaterial,
 } from "three";
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+
+
 
 const styles = {
   container: {
@@ -52,6 +56,63 @@ const styles = {
     },
   },
 };
+
+
+
+function Modis() {
+  const CenterDistance = 2.2; 
+  const OrbitSpeed = -0.0001;    
+  const loader = new GLTFLoader();
+  const modisRef = useRef();
+  const [model, setModel] = useState(null);
+
+  useLayoutEffect(() => {
+    loader.load(
+      '/satellite.glb',
+      (gltf) => {
+        gltf.scene.traverse(child => {
+          if (child.isMesh) {
+            child.material = new THREE.MeshBasicMaterial({ color: child.material.color });
+            child.castShadow = false;
+            child.receiveShadow = false;
+          }
+        });
+        setModel(gltf.scene);
+      },
+      undefined,
+      (error) => {
+        console.error('Error loading 3d model', error);
+      }
+    );
+  }, []);
+
+  useLayoutEffect(() => {
+    if (model && modisRef.current) {
+      modisRef.current.add(model);
+      model.scale.set(.01, .01, .01);
+    }
+    return () => {
+      if (model && modisRef.current) {
+        modisRef.current.remove(model);
+      }
+    }
+  }, [model]);
+
+  useFrame(() => {
+    if (modisRef.current) {
+        const angle = Date.now() * OrbitSpeed;
+        const x = CenterDistance * Math.cos(angle);
+        const z = CenterDistance * Math.sin(angle);
+
+        modisRef.current.position.set(x, 1, z); 
+    }
+  });
+
+  return <group ref={modisRef} />;
+}
+
+
+
 
 function Moon() {
   const position = new Vector3(18, 10, 2);
@@ -272,6 +333,7 @@ export default function Earth() {
       </div>
       <Canvas raycaster={{ threshold: 0.5 }}>
         <Moon />
+        <Modis />
         <Suspense
           fallback={
             <Html>
