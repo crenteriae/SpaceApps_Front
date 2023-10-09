@@ -1,6 +1,24 @@
 "use client";
-import { useState, useEffect, useRef, useMemo } from "react";
+
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  Suspense,
+  useCallback,
+} from "react";
+import {
+  Spinner,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Button,
+} from "@nextui-org/react";
 import { Canvas, useLoader, useFrame, useThree } from "@react-three/fiber";
+import { OrbitControls, Html } from "@react-three/drei";
+import axios from "axios";
+
 import * as THREE from "three";
 import {
   TextureLoader,
@@ -12,7 +30,49 @@ import {
   Float32BufferAttribute,
   PointsMaterial,
 } from "three";
-import { OrbitControls, Html } from "@react-three/drei";
+
+const styles = {
+  container: {
+    backgroundColor: "rgba(255,255,255,0.8)",
+    padding: "10px",
+    borderRadius: "5px",
+    maxHeight: "300px",
+    overflow: "auto",
+    boxShadow: "0px 0px 10px rgba(0,0,0,0.2)",
+    fontSize: "14px",
+  },
+  listItem: {
+    cursor: "pointer",
+    marginBottom: "5px",
+    borderBottom: "1px solid rgba(0,0,0,0.1)",
+    padding: "8px 0",
+    transition: "background-color 0.3s ease",
+    "&:hover": {
+      backgroundColor: "rgba(0,0,0,0.05)",
+    },
+  },
+};
+
+function Moon() {
+  const position = new Vector3(18, 10, 2);
+  const moonMesh = useRef();
+  const texture = useLoader(TextureLoader, "/assets/MoonTexture.jpg");
+  const degreesY = -90;
+  const radiansY = degreesY * (Math.PI / 80);
+
+  useEffect(() => {
+    if (moonMesh.current) {
+      moonMesh.current.rotation.y = radiansY;
+    }
+  }, []);
+
+  return (
+    <mesh ref={moonMesh} position={position}>
+      <sphereGeometry args={[1.3, 15, 32]} />
+      <meshStandardMaterial map={texture} />
+    </mesh>
+  );
+}
 
 function FirePoint({ lat, long, info, setHoverChange, hoverChange }) {
   const [hovered, setHovered] = useState(false);
@@ -40,11 +100,7 @@ function FirePoint({ lat, long, info, setHoverChange, hoverChange }) {
 
   return (
     <>
-      <mesh
-        position={position.toArray()}
-        //onPointerOver={() => handleHover()}
-        onPointerEnter={() => handleHover()}
-      >
+      <mesh position={position.toArray()} onPointerEnter={() => handleHover()}>
         <sphereGeometry args={[0.005, 15, 32]} />
         <meshPhongMaterial
           color={new Color("yellow")}
@@ -60,19 +116,34 @@ function FirePoint({ lat, long, info, setHoverChange, hoverChange }) {
         position={position.toArray()}
         color={new Color("yellow")}
         distance={0.1}
-        intensity={0.03}
+        intensity={parseFloat(info) / 1000}
       />
     </>
   );
 }
 
-function Stars({ count = 5000 }) {
+function Stars({ count = 10000 }) {
   const { scene } = useThree();
+  const minRadius = 20;
+  const maxRadius = 50;
+
   const vertices = useMemo(() => {
-    const positions = new Float32Array(count * 3); // 3 vertices per point
-    for (let i = 0; i < count * 3; i++) {
-      positions[i] = (Math.random() - 0.5) * 100; // a random position within a 100x100x100 cube
+    const positions = new Float32Array(count * 3);
+
+    for (let i = 0; i < count; i++) {
+      const radius = minRadius + Math.random() * (maxRadius - minRadius);
+      const theta = 2 * Math.PI * Math.random();
+      const phi = Math.acos(2 * Math.random() - 1);
+
+      const x = radius * Math.sin(phi) * Math.cos(theta);
+      const y = radius * Math.sin(phi) * Math.sin(theta);
+      const z = radius * Math.cos(phi);
+
+      positions[i * 3] = x;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = z;
     }
+
     const geometry = new THREE.BufferGeometry();
     geometry.setAttribute(
       "position",
@@ -80,39 +151,43 @@ function Stars({ count = 5000 }) {
     );
     const material = new THREE.PointsMaterial({ size: 0.1, color: "white" });
     const points = new THREE.Points(geometry, material);
-    scene.add(points); // Add points to the scene
+    scene.add(points);
+
     return () => {
-      scene.remove(points); // Clean up points from scene on unmount
+      scene.remove(points);
       geometry.dispose();
       material.dispose();
     };
   }, [count, scene]);
 
-  return null; // Return null as we are directly mutating the scene, and not rendering anything through React's render
+  return null;
 }
+
+const MemoizedFirePoint = React.memo(FirePoint);
 
 function RotatingEarth({ fireData }) {
   const meshRef = useRef();
   const texture = useLoader(TextureLoader, "/assets/EarthTexture.jpg");
+
   const [hoverChange, setHoverChange] = useState(false);
 
   useFrame(() => {
     if (meshRef.current) {
-      meshRef.current.rotation.y += 0.0;
+      meshRef.current.rotation.y += 0.0009;
     }
   });
 
   return (
     <mesh ref={meshRef} scale={2}>
-      <Stars></Stars>
+      <Stars />
       <sphereGeometry />
       <meshStandardMaterial map={texture} />
       {fireData.map((fire, index) => (
-        <FirePoint
+        <MemoizedFirePoint
           key={index}
           lat={fire.latitude}
           long={fire.longitude}
-          info={fire.brightness.toString()}
+          info={fire.bright_ti5.toString()}
           setHoverChange={setHoverChange}
           hoverChange={hoverChange}
         />
@@ -123,44 +198,101 @@ function RotatingEarth({ fireData }) {
 
 export default function Earth() {
   const [fireData, setFireData] = useState([]);
+  const [fireRate, setFireRate] = useState("loading");
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch("./Fire.json");
-        if (!response.ok) {
-          throw new Error("Respuesta no exitosa");
-        }
-        const data = await response.json();
+  const getFireRate = async (lat, lot) => {
+    const response = await axios.get(
+      `https://flamefox.azurewebsites.net/api/prediction/fire_rate?latitude=${lat}&longitude=${lot}`
+    );
+    const data = response.data;
+    //console.log(data.data);
+    setFireRate(data.data.toString());
+  };
 
-        const randomData = [];
-        for (let i = 0; i < 20; i++) {
-          const randomIndex = Math.floor(Math.random() * data.length);
-          randomData.push(data[randomIndex]);
-        }
+  const handleClickOnFirePoint = (fire) => {
+    setFireRate("loading...");
+    getFireRate(fire.latitude, fire.longitude);
+  };
 
-        setFireData(randomData);
-      } catch (error) {
-        console.error("Error al obtener los datos:", error.message);
+  const fetchData = useCallback(async () => {
+    try {
+      let limit = 100;
+      const response = await axios.get(
+        `http://localhost:1080/api/live?limit=${limit}`
+      );
+      if (response.status !== 200) {
+        throw new Error("Respuesta no exitosa");
       }
+      const data = await response.data;
+      setFireData(data);
+    } catch (error) {
+      console.error("Error al obtener los datos:", error.message);
     }
-
+  }, []);
+  useEffect(() => {
     fetchData();
   }, []);
 
   return (
-    <Canvas raycaster={{ threshold: 0.5 }}>
-      <ambientLight intensity={0.5} />
-      <pointLight intensity={80} position={[5, 0, 0]} />
-      <RotatingEarth fireData={fireData} />
-      <OrbitControls
-        enableZoom={true}
-        enableRotate={true}
-        autoRotate={true}
-        autoRotateSpeed={0.5}
-        minDistance={2.5}
-        maxDistance={8}
-      />
-    </Canvas>
+    <div style={{ width: "100vw", height: "100vh", position: "relative" }}>
+      <div
+        className="w-1/4"
+        style={{
+          ...styles.container,
+          position: "absolute",
+          top: "10px",
+          left: "10px",
+          zIndex: 1,
+        }}
+      >
+        <ul>
+          {fireData.map((fire, index) => (
+            <Popover placement="right" key={index}>
+              <PopoverTrigger>
+                <Button
+                  className="w-full h-full p-4 my-2 flex flex-col items-start"
+                  onPress={() => handleClickOnFirePoint(fire)}
+                >
+                  <h1 className="font-bold">Wildfire detected</h1>
+                  <p className="text-left">Latitude: {fire.latitude}</p>
+                  <p>Longitude: {fire.longitude}</p>
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent>
+                <div className="px-1 py-2">
+                  <div className="text-small font-bold">
+                    The fire has an aproximated rate in km/h of
+                  </div>
+                  <div className="text-tiny">{fireRate}</div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          ))}
+        </ul>
+      </div>
+      <Canvas raycaster={{ threshold: 0.5 }}>
+        <Moon />
+        <Suspense
+          fallback={
+            <Html>
+              <Spinner />
+            </Html>
+          }
+        >
+          <ambientLight intensity={0.5} />
+          <pointLight intensity={80} position={[5, 0, 0]} />
+          <RotatingEarth fireData={fireData} />
+          <OrbitControls
+            enableZoom={true}
+            enablePan={false}
+            enableRotate={true}
+            autoRotate={false}
+            autoRotateSpeed={0.5}
+            minDistance={2.5}
+            maxDistance={8}
+          />
+        </Suspense>
+      </Canvas>
+    </div>
   );
 }
