@@ -2,7 +2,7 @@
 import { useEffect, useState } from "react"
 import { Button, Card } from "@nextui-org/react"
 import { useDropzone } from 'react-dropzone';
-
+import sendReport from './sendReport'
 
 export default function Page(){
 
@@ -41,7 +41,9 @@ export default function Page(){
             return;
         }
         else{
-
+            if(file){
+                sendReport(long, lat, file)
+            }
         }
         //setLoading(false ) when correct handle
     }
@@ -63,7 +65,7 @@ export default function Page(){
 
   const { getRootProps, getInputProps } = useDropzone({
     onDrop: (acceptedFiles) => handleFileChange(acceptedFiles),
-    accept: ['image/jpeg', 'image/png'],
+    accept: ['image/jpeg', 'image/png']
   });
 
     return(
