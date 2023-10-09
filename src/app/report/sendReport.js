@@ -3,14 +3,15 @@ import axios from "axios";
 const sendReport = async (long, lat, file) => {
     const fn = file.name;
     const reader = new FileReader();
-        reader.onloadend = () => {
-        // Use a regex to remove data url part
-        const base64String = reader.result
-            .replace('data:', '')
-            .replace(/^.+,/, '');
-        console.log(base64String);
-        }
-        reader.readAsDataURL(file)
+    let base64String;
+    reader.onloadend = () => {
+    // Use a regex to remove data url part
+    base64String = reader.result
+        .replace('data:', '')
+        .replace(/^.+,/, '');
+    console.log(base64String);
+    }
+    reader.readAsDataURL(file)
     try{
         const response = await axios.post('https://flamefox.azurewebsites.net/api/report', {
             longitude: long,
@@ -21,7 +22,7 @@ const sendReport = async (long, lat, file) => {
         console.log(response.data)
     }
     catch(error){
-        console.error(error);
+        console.error(error.response);
     }
 }
 
