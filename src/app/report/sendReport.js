@@ -1,28 +1,23 @@
 import axios from "axios";
 
 const sendReport = async (long, lat, file) => {
-    const fn = file.name;
-    const reader = new FileReader();
-    let base64String;
-    reader.onloadend = () => {
-    // Use a regex to remove data url part
-    base64String = reader.result
-        .replace('data:', '')
-        .replace(/^.+,/, '');
-    console.log(base64String);
-    }
-    reader.readAsDataURL(file)
     try{
-        const response = await axios.post('https://flamefox.azurewebsites.net/api/report', {
+        const formData = new FormData();
+        formData.append("file", file);  
+        const response = await axios.post('http://localhost:1080/api/images', formData)
+        //console.log(response.data.resourceId)
+        const imageId = response.data.resourceId
+        const responseSec = await axios.post('http://localhost:1080/api/report', {
             longitude: long,
             latitude: lat,
-            imageName: fn,
-            imageData: base64String,
+            imageId: imageId
         })
-        console.log(response.data)
+        console.log(responseSec.data)
+        return true
     }
     catch(error){
-        console.error(error.response);
+        console.error(error);
+        return false
     }
 }
 
