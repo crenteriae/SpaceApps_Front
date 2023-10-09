@@ -12,7 +12,7 @@ const sendReport = async (long, lat, file) => {
         }
         reader.readAsDataURL(file)
     try{
-        const response = axios.post('https://flamefox.azurewebsites.net/api/report', {
+        const response = await axios.post('https://flamefox.azurewebsites.net/api/report', {
             longitude: long,
             latitude: lat,
             imageName: fn,
