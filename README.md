@@ -1,5 +1,9 @@
 This project is the FlameFox team's front-end code for the NASA SpaceApps Challenge. 
+
+
 The back-end may be found here: https://github.com/diegolorenzo12/FlameFox-Nasa-SpaceApp-2023-Backend
+
+
 This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
 ## Getting Started
