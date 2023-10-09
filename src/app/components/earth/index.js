@@ -1,9 +1,23 @@
 "use client";
 
-import { useState, useEffect, useRef, useMemo, Suspense } from "react";
-import { Spinner } from "@nextui-org/react";
+import React, {
+  useState,
+  useEffect,
+  useRef,
+  useMemo,
+  Suspense,
+  useCallback,
+} from "react";
+import {
+  Spinner,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Button,
+} from "@nextui-org/react";
 import { Canvas, useLoader, useFrame, useThree } from "@react-three/fiber";
 import { OrbitControls, Html } from "@react-three/drei";
+import axios from "axios";
 
 import * as THREE from "three";
 import {
@@ -22,7 +36,6 @@ const styles = {
     backgroundColor: "rgba(255,255,255,0.8)",
     padding: "10px",
     borderRadius: "5px",
-    width: "240px",
     maxHeight: "300px",
     overflow: "auto",
     boxShadow: "0px 0px 10px rgba(0,0,0,0.2)",
@@ -39,19 +52,6 @@ const styles = {
     },
   },
 };
-function handleClickOnFirePoint(fire, camera, controls) {
-  const position = new Vector3();
-  position
-    .setFromSphericalCoords(
-      2.5,
-      Math.PI / 2 - fire.latitude * (Math.PI / 180),
-      (fire.longitude + 90) * (Math.PI / 180)
-    )
-    .multiplyScalar(1.2);
-  camera.position.lerp(position, 1);
-  controls.target.lerp(position, 1);
-  controls.update();
-}
 
 function FirePoint({ lat, long, info, setHoverChange, hoverChange }) {
   const [hovered, setHovered] = useState(false);
@@ -99,7 +99,7 @@ function FirePoint({ lat, long, info, setHoverChange, hoverChange }) {
         position={position.toArray()}
         color={new Color("yellow")}
         distance={0.1}
-        intensity={0.03}
+        intensity={parseFloat(info) / 1000}
       />
     </>
   );
@@ -130,6 +130,8 @@ function Stars({ count = 5000 }) {
   return null; // Return null as we are directly mutating the scene, and not rendering anything through React's render
 }
 
+const MemoizedFirePoint = React.memo(FirePoint);
+
 function RotatingEarth({ fireData }) {
   const meshRef = useRef();
   const texture = useLoader(TextureLoader, "/assets/EarthTexture.jpg");
@@ -148,11 +150,11 @@ function RotatingEarth({ fireData }) {
       <sphereGeometry />
       <meshStandardMaterial map={texture} />
       {fireData.map((fire, index) => (
-        <FirePoint
+        <MemoizedFirePoint
           key={index}
           lat={fire.latitude}
           long={fire.longitude}
-          info={fire.brightness.toString()}
+          info={fire.bright_ti5.toString()}
           setHoverChange={setHoverChange}
           hoverChange={hoverChange}
         />
@@ -163,27 +165,38 @@ function RotatingEarth({ fireData }) {
 
 export default function Earth() {
   const [fireData, setFireData] = useState([]);
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const response = await fetch("./Fire.json");
-        if (!response.ok) {
-          throw new Error("Respuesta no exitosa");
-        }
-        const data = await response.json();
+  const [fireRate, setFireRate] = useState("loading");
 
-        const randomData = [];
-        for (let i = 0; i < 20; i++) {
-          const randomIndex = Math.floor(Math.random() * data.length);
-          randomData.push(data[randomIndex]);
-        }
+  const getFireRate = async (lat, lot) => {
+    const response = await axios.get(
+      `https://flamefox.azurewebsites.net/api/prediction/fire_rate?latitude=${lat}&longitude=${lot}`
+    );
+    const data = response.data;
+    //console.log(data.data);
+    setFireRate(data.data.toString());
+  };
 
-        setFireData(randomData);
-      } catch (error) {
-        console.error("Error al obtener los datos:", error.message);
+  const handleClickOnFirePoint = (fire) => {
+    setFireRate("loading...");
+    getFireRate(fire.latitude, fire.longitude);
+  };
+
+  const fetchData = useCallback(async () => {
+    try {
+      let limit = 100;
+      const response = await axios.get(
+        `http://localhost:1080/api/live?limit=${limit}`
+      );
+      if (response.status !== 200) {
+        throw new Error("Respuesta no exitosa");
       }
+      const data = await response.data;
+      setFireData(data);
+    } catch (error) {
+      console.error("Error al obtener los datos:", error.message);
     }
-
+  }, []);
+  useEffect(() => {
     fetchData();
   }, []);
 
@@ -197,19 +210,30 @@ export default function Earth() {
           left: "10px",
           zIndex: 1,
         }}
+        className="w-1/3 p-5"
       >
-        <ul>
-          {fireData.map((fire, index) => (
-            <li
-              key={index}
-              style={styles.listItem}
-              onClick={() => handleClickOnFirePoint(fire, camera, controls)}
-            >
-              Firewild detected in: Latitude: {fire.latitude.toFixed(2)},
-              Longitude: {fire.longitude.toFixed(2)}
-            </li>
-          ))}
-        </ul>
+        {fireData.map((fire, index) => (
+          <Popover placement="right" key={index}>
+            <PopoverTrigger>
+              <Button
+                className="w-full h-full p-4 my-2 flex flex-col items-start"
+                onPress={() => handleClickOnFirePoint(fire)}
+              >
+                <h1 className="font-bold">Wildfire detected</h1>
+                <p className="text-left">Latitude: {fire.latitude}</p>
+                <p>Longitude: {fire.longitude}</p>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent>
+              <div className="px-1 py-2">
+                <div className="text-small font-bold">
+                  The fire has an aproximated rate in km/h of
+                </div>
+                <div className="text-tiny">{fireRate}</div>
+              </div>
+            </PopoverContent>
+          </Popover>
+        ))}
       </div>
       <Canvas raycaster={{ threshold: 0.5 }}>
         <Suspense
