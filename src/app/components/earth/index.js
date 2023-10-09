@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useMemo, Suspense } from "react";
 import { Spinner } from "@nextui-org/react";
 import { Canvas, useLoader, useFrame, useThree } from "@react-three/fiber";
-import { OrbitControls, Html } from '@react-three/drei';
+import { OrbitControls, Html } from "@react-three/drei";
 
 import * as THREE from "three";
 import {
@@ -17,39 +17,40 @@ import {
   PointsMaterial,
 } from "three";
 
-
 const styles = {
-    container: {
-        backgroundColor: 'rgba(255,255,255,0.8)',
-        padding: '10px',
-        borderRadius: '5px',
-        width: '240px',     
-        maxHeight: '300px',  
-        overflow: 'auto',
-        boxShadow: '0px 0px 10px rgba(0,0,0,0.2)',  
-        fontSize: '14px'    
+  container: {
+    backgroundColor: "rgba(255,255,255,0.8)",
+    padding: "10px",
+    borderRadius: "5px",
+    width: "240px",
+    maxHeight: "300px",
+    overflow: "auto",
+    boxShadow: "0px 0px 10px rgba(0,0,0,0.2)",
+    fontSize: "14px",
+  },
+  listItem: {
+    cursor: "pointer",
+    marginBottom: "5px",
+    borderBottom: "1px solid rgba(0,0,0,0.1)",
+    padding: "8px 0",
+    transition: "background-color 0.3s ease",
+    "&:hover": {
+      backgroundColor: "rgba(0,0,0,0.05)",
     },
-    listItem: {
-        cursor: 'pointer',
-        marginBottom: '5px',
-        borderBottom: '1px solid rgba(0,0,0,0.1)',  
-        padding: '8px 0',    
-        transition: 'background-color 0.3s ease', 
-        "&:hover": {
-            backgroundColor: 'rgba(0,0,0,0.05)'  
-        }
-    }
+  },
 };
 function handleClickOnFirePoint(fire, camera, controls) {
-    const position = new Vector3();
-    position.setFromSphericalCoords(
-        2.5,
-        (Math.PI/2) - fire.latitude * (Math.PI/180),
-        (fire.longitude+90) * (Math.PI/180)
-    ).multiplyScalar(1.2); 
-    camera.position.lerp(position, 1);
-    controls.target.lerp(position, 1);
-    controls.update();
+  const position = new Vector3();
+  position
+    .setFromSphericalCoords(
+      2.5,
+      Math.PI / 2 - fire.latitude * (Math.PI / 180),
+      (fire.longitude + 90) * (Math.PI / 180)
+    )
+    .multiplyScalar(1.2);
+  camera.position.lerp(position, 1);
+  controls.target.lerp(position, 1);
+  controls.update();
 }
 
 function Moon() {
@@ -170,7 +171,7 @@ function RotatingEarth({ fireData }) {
   const texture = useLoader(TextureLoader, "/assets/EarthTexture.jpg");
 
   const [hoverChange, setHoverChange] = useState(false);
-  
+
   useFrame(() => {
     if (meshRef.current) {
       meshRef.current.rotation.y += 0.0009;
@@ -196,7 +197,6 @@ function RotatingEarth({ fireData }) {
   );
 }
 
-
 export default function Earth() {
   const [fireData, setFireData] = useState([]);
     useEffect(() => {
@@ -219,7 +219,7 @@ export default function Earth() {
                 console.error("Error al obtener los datos:", error.message);
             }
         }
-
+        const data = await response.json();
         fetchData();
     }, []);
 
