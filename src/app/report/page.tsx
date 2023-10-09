@@ -34,15 +34,22 @@ export default function Page(){
         }
     }, []);
 
-    const handleButtonClick = () => {
+    const handleButtonClick = async () => {
         setLoading(true)
         if(geolocationError){
             alert("Geolocation is not available. Please enable location services.")
+            setLoading(false)
             return;
         }
         else{
             if(file){
-                sendReport(long, lat, file)
+                if(await sendReport(long, lat, file)){
+                    alert('Report succesful.')
+                }
+                else{
+                    alert('Report failed.')
+                }
+                setLoading(false)
             }
         }
         //setLoading(false ) when correct handle
