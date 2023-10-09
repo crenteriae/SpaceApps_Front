@@ -218,7 +218,7 @@ export default function Earth() {
     try {
       let limit = 100;
       const response = await axios.get(
-        `http://localhost:1080/api/live?limit=${limit}`
+        `https://flamefox.azurewebsites.net/api/live?limit=${limit}`
       );
       if (response.status !== 200) {
         throw new Error("Respuesta no exitosa");
