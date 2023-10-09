@@ -209,7 +209,7 @@ export default function Earth() {
                 const data = await response.json();
 
                 const randomData = [];
-                for (let i = 0; i < 20; i++) {
+                for (let i = 0; i < 50; i++) {
                     const randomIndex = Math.floor(Math.random() * data.length);
                     randomData.push(data[randomIndex]);
                 }
@@ -225,7 +225,7 @@ export default function Earth() {
 
     return (
         <div style={{ width: '100vw', height: '100vh', position: 'relative' }}>
-            <div style={{ ...styles.container, position: 'absolute', top: '10px', left: '10px', height:'130vh', width:'22vw', zIndex: 1 }}>
+            <div style={{ ...styles.container, position: 'absolute', top: '10px', left: '10px', zIndex: 1 }}>
                 <ul>
                     {fireData.map((fire, index) => (
                         <li 
